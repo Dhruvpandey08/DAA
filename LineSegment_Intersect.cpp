@@ -55,6 +55,7 @@ public:
         }
     }
 };
+
 int main()
 {
     Line line1;
