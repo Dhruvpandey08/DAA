@@ -1,80 +1,103 @@
 #include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
 using namespace std;
 
-class Line
+class BronKerbosch 
 {
 public:
-    bool on_segment(int xi, int xj, int xk, int yi, int yj, int yk)
+    void readGraph() 
     {
-        if(min(xi,xj)<=xk<=max(xi,xj) && min(yi,yj)<=yk<=max(yi,yj))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
+        int numNodes, numEdges;
+        cout << "Enter the number of nodes: ";
+        cin >> numNodes;
+        cout << "Enter the number of edges: ";
+        cin >> numEdges;
+
+        for (int i = 1; i <= numEdges; ++i) {
+            int fromNode, toNode;
+            cout << "Enter the edge " << i << " (fromNode to toNode): ";
+            cin >> fromNode >> toNode;
+
+            neighbors[fromNode].insert(toNode);
+            neighbors[toNode].insert(fromNode); // Assuming the graph is undirected
         }
     }
 
-    int direction(int xi,int yi,int xj,int yj,int xk,int yk)
+    void find_maximal_cliques() 
     {
-        return (xk - xi) * (yj - yi) - (xj - xi) * (yk - yi);
+        vector<int> R;
+        unordered_set<int> vertices;
+        for (const auto& entry : neighbors) {
+            vertices.insert(entry.first);
+        }
+        unordered_set<int> X;
+
+        count = 0; // Initialize the clique count
+        find_maximal_cliques(R, vertices, X);
     }
 
-    bool intersect(int p1x,int p1y,int p2x,int p2y,int p3x,int p3y,int p4x,int p4y)
+    void printMaximalCliques() 
     {
-        int d1,d2,d3,d4;
-        d1 = direction(p3x,p3y,p4x,p4y,p1x,p1y);
-        d2 = direction(p3x,p3y,p4x,p4y,p2x,p2y);
-        d3 = direction(p1x,p1y,p2x,p2y,p3x,p3y);
-        d4 = direction(p1x,p1y,p2x,p2y,p4x,p4y);
-
-        if(((d1>0 && d2<0) || (d1<0 && d2>0)) && (d3>0 && d4<0) || (d3<0 && d4>0))
-        {
-            return true;
-        }
-        else if(d1==0 && on_segment(p3x,p3y,p4x,p4y,p1x,p1y))
-        {
-            return true;
-        }
-        else if(d2==0 && on_segment(p3x,p3y,p4x,p4y,p2x,p2y))
-        {
-            return true;
-        }
-        else if(d3==0 && on_segment(p1x,p1y,p2x,p2y,p3x,p3y))
-        {
-            return true;
-        }
-        else if(d4==0 && on_segment(p1x,p1y,p2x,p2y,p4x,p4y))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
+        cout << "Maximal Clique Count: " << count << endl;
+        cout << "Nodes in each maximal clique:" << endl;
+        for (const auto& clique : maximal_cliques) {
+            for (int v : clique) {
+                cout << v << " ";
+            }
+            cout << endl;
         }
     }
+
+private:
+    // Helper function to find the intersection of two sets
+    unordered_set<int> intersect(const unordered_set<int>& set1, const unordered_set<int>& set2) 
+    {
+        unordered_set<int> result;
+        for (const int& elem : set1) {
+            if (set2.count(elem) > 0) {
+                result.insert(elem);
+            }
+        }
+        return result;
+    }
+
+    // Bron-Kerbosch algorithm for finding all maximal cliques
+    void find_maximal_cliques(vector<int>& R, unordered_set<int>& P, unordered_set<int>& X) 
+    {
+        if (P.empty() && X.empty()) {
+            maximal_cliques.push_back(R);
+            count++; // Increment the clique count
+            return;
+        }
+
+        for (int v : P) {
+            vector<int> R_prime = R;
+            R_prime.push_back(v);
+            unordered_set<int> P_prime = intersect(P, neighbors[v]);
+            unordered_set<int> X_prime = intersect(X, neighbors[v]);
+
+            find_maximal_cliques(R_prime, P_prime, X_prime);
+
+            P.erase(v);
+            X.insert(v);
+        }
+    }
+
+    // The graph and neighbors should be accessible from within the class
+    unordered_map<int, unordered_set<int>> neighbors;
+    vector<vector<int>> maximal_cliques;
+    int count;
 };
 
-int main()
+int main() 
 {
-    Line line1;
-    int p1x, p1y;
-    cin >> p1x >> p1y;
-    int p2x, p2y;
-    cin >> p2x >> p2y;
-    int p3x, p3y;
-    cin >> p3x >> p3y;
-    int p4x, p4y;
-    cin >> p4x >> p4y;
-    bool intersect = line1.intersect(p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y);
-    if(intersect)
-    {
-        cout<<"yes"<<endl;
-    }
-    else
-    {
-        cout<<"No"<<endl;
-    }
+    BronKerbosch obj;
+    obj.readGraph();
+    obj.find_maximal_cliques();
+    obj.printMaximalCliques();
+
     return 0;
 }

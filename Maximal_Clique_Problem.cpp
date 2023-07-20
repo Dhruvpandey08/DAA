@@ -5,9 +5,11 @@
 
 using namespace std;
 
-class BronKerbosch {
+class BronKerbosch 
+{
 public:
-    void readGraph() {
+    void readGraph() 
+    {
         int numNodes, numEdges;
         cout << "Enter the number of nodes: ";
         cin >> numNodes;
@@ -24,7 +26,8 @@ public:
         }
     }
 
-    void find_maximal_cliques() {
+    void find_maximal_cliques() 
+    {
         vector<int> R;
         unordered_set<int> vertices;
         for (const auto& entry : neighbors) {
@@ -36,7 +39,8 @@ public:
         find_maximal_cliques(R, vertices, X);
     }
 
-    void printMaximalCliques() {
+    void printMaximalCliques() 
+    {
         cout << "Maximal Clique Count: " << count << endl;
         cout << "Nodes in each maximal clique:" << endl;
         for (const auto& clique : maximal_cliques) {
@@ -49,7 +53,8 @@ public:
 
 private:
     // Helper function to find the intersection of two sets
-    unordered_set<int> intersect(const unordered_set<int>& set1, const unordered_set<int>& set2) {
+    unordered_set<int> intersect(const unordered_set<int>& set1, const unordered_set<int>& set2) 
+    {
         unordered_set<int> result;
         for (const int& elem : set1) {
             if (set2.count(elem) > 0) {
@@ -60,7 +65,8 @@ private:
     }
 
     // Bron-Kerbosch algorithm for finding all maximal cliques
-    void find_maximal_cliques(vector<int>& R, unordered_set<int>& P, unordered_set<int>& X) {
+    void find_maximal_cliques(vector<int>& R, unordered_set<int>& P, unordered_set<int>& X) 
+    {
         if (P.empty() && X.empty()) {
             maximal_cliques.push_back(R);
             count++; // Increment the clique count
@@ -88,10 +94,10 @@ private:
 
 int main() 
 {
-    BronKerbosch bron_kerbosch_solver;
-    bron_kerbosch_solver.readGraph();
-    bron_kerbosch_solver.find_maximal_cliques();
-    bron_kerbosch_solver.printMaximalCliques();
+    BronKerbosch obj;
+    obj.readGraph();
+    obj.find_maximal_cliques();
+    obj.printMaximalCliques();
 
     return 0;
 }
