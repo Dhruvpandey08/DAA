@@ -52,7 +52,7 @@ public:
     }
 
 private:
-    // Helper function to find the intersection of two sets
+    // It ensures that only nodes that are connected to the current node v are considered for the next recursive step. 
     unordered_set<int> intersect(const unordered_set<int>& set1, const unordered_set<int>& set2) 
     {
         unordered_set<int> result;
@@ -64,7 +64,7 @@ private:
         return result;
     }
 
-    // Bron-Kerbosch algorithm for finding all maximal cliques
+    // helper function within the class, Bron-Kerbosch algorithm for finding all maximal cliques
     void find_maximal_cliques(vector<int>& R, unordered_set<int>& P, unordered_set<int>& X) 
     {
         if (P.empty() && X.empty()) {
@@ -73,13 +73,14 @@ private:
             return;
         }
 
+        //Backtracking
         for (int v : P) {
             vector<int> R_prime = R;
             R_prime.push_back(v);
-            unordered_set<int> P_prime = intersect(P, neighbors[v]);
+            unordered_set<int> P_prime = intersect(P, neighbors[v]); //R_prime is used as a temporary vector for updation of cliques
             unordered_set<int> X_prime = intersect(X, neighbors[v]);
 
-            find_maximal_cliques(R_prime, P_prime, X_prime);
+            find_maximal_cliques(R_prime, P_prime, X_prime); //Recursive Call
 
             P.erase(v);
             X.insert(v);
