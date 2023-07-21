@@ -14,7 +14,7 @@ public:
     }
     void inputarray();
     int getN();
-    void mergearray(int,int,int);
+    void mergedarray(int,int,int);
     void merge(int,int,int);
     void mergesort(int,int);
     void display();
@@ -32,7 +32,7 @@ int Array :: getN()
 {
     return n;
 }
-void Array :: mergearray(int s,int m,int e)
+void Array :: mergedarray(int s,int m,int e)
 {
     cout<<"Merged Array is: ";
     for(int i=s;i<=m;i++)
@@ -48,7 +48,7 @@ void Array :: mergearray(int s,int m,int e)
 }
 void Array :: merge(int s,int m,int e)
 {
-    mergearray(s,m,e);
+    mergedarray(s,m,e);
     int temp[100];
     int i=s;
     int j=m+1;

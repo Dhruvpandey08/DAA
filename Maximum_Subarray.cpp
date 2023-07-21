@@ -7,35 +7,17 @@ class Array
 private:
     int arr[100];
     int n;
-
 public:
     Array()
     {
         n = 0;
     }
-    int max(int, int);
-    int max(int, int, int);
     int cross_sum(int, int, int, int&, int&);
     int subarray(int, int, int&, int&);
     int getN();
     void inputArray();
 };
-int Array::max(int a, int b)
-{
-    if (a > b)
-    {
-        return a;
-    }
-    else
-    {
-        return b;
-    }
-}
-int Array::max(int a, int b, int c)
-{
-    return max(max(a, b), c);
-}
-int Array::cross_sum(int low, int mid, int high, int& startIndex, int& endIndex)
+int Array::cross_sum(int low, int mid, int high, int& sindex, int& eindex)
 {
     int leftsum = INT8_MIN;
     int sum = 0;
@@ -61,43 +43,43 @@ int Array::cross_sum(int low, int mid, int high, int& startIndex, int& endIndex)
             maxright = i;
         }
     }
-    startIndex = maxleft;
-    endIndex = maxright;
+    sindex = maxleft;
+    eindex = maxright;
     return leftsum + rightsum;
 }
 
-int Array::subarray(int low, int high, int& startIndex, int& endIndex)
+int Array::subarray(int low, int high, int& sindex, int& eindex)
 {
     if (low == high)
     {
-        startIndex = low;
-        endIndex = high;
+        sindex = low;
+        eindex = high;
         return arr[low];
     }
     int mid = low + (high - low) / 2;
     int leftStart, leftEnd, rightStart, rightEnd, crossStart, crossEnd;
-    int leftSum = subarray(low, mid, leftStart, leftEnd);
-    int rightSum = subarray(mid + 1, high, rightStart, rightEnd);
-    int crossSum = cross_sum(low, mid, high, crossStart, crossEnd);
+    int ans1 = subarray(low, mid, leftStart, leftEnd);
+    int ans2 = subarray(mid + 1, high, rightStart, rightEnd);
+    int ans3 = cross_sum(low, mid, high, crossStart, crossEnd);
     
 
-    if (leftSum >= rightSum && leftSum >= crossSum)
+    if (ans1 > ans2 && ans1 > ans3)
     {
-        startIndex = leftStart;
-        endIndex = leftEnd;
-        return leftSum;
+        sindex = leftStart;
+        eindex = leftEnd;
+        return ans1;
     }
-    else if (rightSum >= leftSum && rightSum >= crossSum)
+    else if (ans1 > ans2 && ans1 < ans3)
     {
-        startIndex = rightStart;
-        endIndex = rightEnd;
-        return rightSum;
+        sindex = crossStart;
+        eindex = crossEnd;
+        return ans3;
     }
     else
     {
-        startIndex = crossStart;
-        endIndex = crossEnd;
-        return crossSum;
+        sindex = rightStart;
+        eindex = rightEnd;
+        return ans2;
     }
 }
 int Array::getN()
@@ -106,9 +88,7 @@ int Array::getN()
 }
 void Array::inputArray()
 {
-    cout << "Enter the value of n: " << endl;
     cin >> n;
-    cout << "Enter the elements in array: " << endl;
     for (int i = 0; i < n; i++)
     {
         cin >> arr[i];
@@ -120,11 +100,11 @@ int main()
     Array array1;
     array1.inputArray();
     int count = array1.getN();
-    int startIndex, endIndex;
-    int maxSum = array1.subarray(0, count - 1, startIndex, endIndex);
-    cout << "Maximum subarray sum: " << maxSum << endl;
-    cout << "Starting index: " << startIndex << endl;
-    cout << "Ending index: " << endIndex << endl;
+    int sindex, eindex;
+    int ans = array1.subarray(0, count - 1, sindex, eindex);
+    cout << "Maximum subarray sum: " << ans << endl;
+    cout << "Starting index: " << sindex << endl;
+    cout << "Ending index: " << eindex << endl;
 
     return 0;
 }
