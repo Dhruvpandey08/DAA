@@ -1,125 +1,86 @@
 #include <iostream>
-#include <queue>
-#include <algorithm>
 
-using namespace std;
-
-const int INF = 1e9; // A very large value representing infinity
-
-class FlowNetwork {
+class NQueens {
 private:
-    int numNodes;
-    int** graph;
-    int* parent;
+    static const int N = 4;
+    int board[N][N];
 
 public:
-    FlowNetwork(int numNodes) : numNodes(numNodes) {
-        graph = new int*[numNodes];
-        for (int i = 0; i < numNodes; ++i) {
-            graph[i] = new int[numNodes];
-            for (int j = 0; j < numNodes; ++j) {
-                graph[i][j] = 0; // Initialize the graph with 0 capacity (no edge)
+    NQueens() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                board[i][j] = 0;
+            }
+        }
+    }
+
+    void printSolution() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                std::cout << " " << board[i][j] << " ";
+            }
+            std::cout << "\n";
+        }
+    }
+
+    bool isSafe(int row, int col) {
+        for (int i = 0; i < col; i++) {
+            if (board[row][i]) {
+                return false;
             }
         }
 
-        parent = new int[numNodes];
-    }
-
-    ~FlowNetwork() {
-        for (int i = 0; i < numNodes; ++i) {
-            delete[] graph[i];
-        }
-        delete[] graph;
-        delete[] parent;
-    }
-
-    // Function to add an edge to the flow network
-    void addEdge(int source, int destination, int capacity) {
-        graph[source][destination] = capacity;
-    }
-
-    // Function to find the maximum flow using Edmonds-Karp algorithm
-    int edmondsKarp(int source, int sink) {
-        int** residualGraph = new int*[numNodes];
-        for (int i = 0; i < numNodes; ++i) {
-            residualGraph[i] = new int[numNodes];
-            for (int j = 0; j < numNodes; ++j) {
-                residualGraph[i][j] = graph[i][j]; // Initialize residual graph with original capacities
+        for (int i = row, j = col; i >= 0 && j >= 0; i--, j--) {
+            if (board[i][j]) {
+                return false;
             }
         }
 
-        int maxFlow = 0;
+        for (int i = row, j = col; j >= 0 && i < N; i++, j--) {
+            if (board[i][j]) {
+                return false;
+            }
+        }
 
-        while (true) {
-            fill(parent, parent + numNodes, -1);
-            parent[source] = -2;
-            queue<pair<int, int>> q;
-            q.push({source, INF});
+        return true;
+    }
 
-            while (!q.empty()) {
-                int currentNode = q.front().first;
-                int flow = q.front().second;
-                q.pop();
+    bool solveNQUtil(int col) {
+        if (col >= N) {
+            return true;
+        }
 
-                for (int nextNode = 0; nextNode < numNodes; ++nextNode) {
-                    if (parent[nextNode] == -1 && residualGraph[currentNode][nextNode] > 0) {
-                        parent[nextNode] = currentNode;
-                        int newFlow = min(flow, residualGraph[currentNode][nextNode]);
-                        if (nextNode == sink) {
-                            maxFlow += newFlow;
-                            while (nextNode != source) {
-                                currentNode = parent[nextNode];
-                                residualGraph[currentNode][nextNode] -= newFlow;
-                                residualGraph[nextNode][currentNode] += newFlow;
-                                nextNode = currentNode;
-                            }
-                            break;
-                        }
-                        q.push({nextNode, newFlow});
-                    }
+        for (int i = 0; i < N; i++) {
+            if (isSafe(i, col)) {
+                board[i][col] = 1;
+
+                if (solveNQUtil(col + 1)) {
+                    return true;
                 }
+
+                board[i][col] = 0; // Backtrack
             }
-
-            if (parent[sink] == -1) // No augmenting path found, we've reached maximum flow
-                break;
         }
 
-        // Free allocated memory for residual graph
-        for (int i = 0; i < numNodes; ++i) {
-            delete[] residualGraph[i];
-        }
-        delete[] residualGraph;
+        return false;
+    }
 
-        return maxFlow;
+    bool solveNQueens() {
+        if (solveNQUtil(0) == false) {
+            return false;
+        }
+
+        printSolution();
+        return true;
     }
 };
 
 int main() {
-    int numNodes, numEdges;
-    cout << "Enter the number of nodes: ";
-    cin >> numNodes;
+    NQueens nQueens;
 
-    FlowNetwork flowNetwork(numNodes);
-
-    cout << "Enter the number of edges: ";
-    cin >> numEdges;
-
-    cout << "Enter the edges in the format: source destination capacity\n";
-    for (int i = 0; i < numEdges; ++i) {
-        int source, destination, capacity;
-        cin >> source >> destination >> capacity;
-        flowNetwork.addEdge(source, destination, capacity);
+    if (nQueens.solveNQueens() == false) {
+        std::cout << "Solution does not exist\n";
     }
-
-    int source, sink;
-    cout << "Enter the source node: ";
-    cin >> source;
-
-    cout << "Enter the sink node: ";
-    cin >> sink;
-
-    int maxFlow = flowNetwork.edmondsKarp(source, sink);
-    cout << "The maximum flow from node " << source << " to node " << sink << " is: " << maxFlow << endl;
 
     return 0;
 }
